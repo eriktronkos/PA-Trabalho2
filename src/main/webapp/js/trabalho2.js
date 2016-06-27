@@ -89,8 +89,7 @@ function submitForm(formID) {
             dataType: "json",
             contentType: "application/json"
         });
-    }
-    else if (formID == 'form_delete') {
+    } else if (formID == 'form_delete') {
         url = 'http://localhost:8080/trabalho2/delete';
 
         $.ajax({
@@ -98,16 +97,21 @@ function submitForm(formID) {
             url: url,
             data: JSON.stringify(dataFinal),
             complete: function () {
-                alert('Deletado livro de patrimônio: '+ dataFinal['patrimonio']);
+                //alert('Deletado livro de patrimônio: '+ dataFinal['patrimonio']);
             },
             success: function (response) {
-                alert('Deletado livro de patrimônio: '+ dataFinal['patrimonio']);
+                if (response['status'] == 'true') {
+                    alert('Deletado livro de patrimônio: ' + dataFinal['patrimonio']);
+                } else {
+                    alert('Erro');
+                }
+
             },
             dataType: "json",
             contentType: "application/json"
         });
     }
-    
+
 }
 
 function disableAllButPatrimonio() {

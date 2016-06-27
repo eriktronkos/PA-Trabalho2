@@ -349,9 +349,9 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
 
         } catch (Exception e) {
             e.printStackTrace();
-            return "{\'status\':\'false\'}";
+            return "{\"status\":\"false\"}";
         }
-        return "{\'status\':\'true\'}";
+        return "{\"status\":\"true\"}";
     }
 
 }
