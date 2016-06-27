@@ -1,6 +1,3 @@
-
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
     "http://www.w3.org/TR/html4/loose.dtd">
 
@@ -8,11 +5,10 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Segundo Trabalho de PA</title>
-        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
-        <link rel="stylesheet" type="text/css" href="css/bootstrap-theme.min.css" />
-        <script type="text/javascript" src="js/mercury.js"></script>
-        <script type="text/javascript" src="js/jquery-2.2.4.min.js"></script>
-        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.3.6/css/bootstrap.min.css" />
+        <script type="text/javascript" src="webjars/jquery/1.11.1/jquery.min.js"></script>
+        <script type="text/javascript" src="webjars/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/trabalho2.js"></script>
     </head>
     <body>
         <div class="container">
@@ -26,12 +22,12 @@
                                 <span class="icon-bar"></span>
                                 <span class="icon-bar"></span>
                             </button>
-                            <a class="navbar-brand" href="#">Trabalho 1 - ProgramaÃ§Ã£o AvanÃ§ada</a>
+                            <a class="navbar-brand" href="#">Trabalho 2 - Programação Avançada</a>
                         </div>
                         <div id="navbar" class="navbar-collapse collapse">
                             <ul class="nav navbar-nav">
-                                <li><a href="/livros/busca">Busca</a></li>
-                                <li class="active"><a href="/livros/crud">Adicionar/Deletar</a></li>
+                                <li><a href="/trabalho2">Busca</a></li>
+                                <li class="active"><a href="/trabalho2/catalogo">Adicionar/Deletar</a></li>
                             </ul>
                         </div><!--/.nav-collapse -->
                     </div>
@@ -41,75 +37,74 @@
                 <div class="panel panel-success">
                     <div class="panel-heading">Adicionar Livro</div>
                     <div class="panel-body">
-                        <form id="form_1_id" method="GET" action="crud" class="form-inline">
+                        <form id="form_adicao" method="POST" class="form-group">
 
-                            <div class="col-sm-8">
-                                <input id="botao_escolhido_form_1_id" type="hidden" name="botaoEscolhido" value="CREATE"/>
-
-                                <div class="form-group">
-                                    <label for="titulo">TÃ­tulo</label>
-                                    <input type="text" name="titulo"
-                                           value=""  size="30"/>
-                                </div>
-                                <div class="form-group">
-                                    <label for="autor">Autor</label>
-                                    <input type="text" name="autor"
-                                           value=""  size="30"/>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="titulo">Título:</label>
+                                        <input class="form-control" type="text" id="input_titulo" name="titulo" required
+                                               value=""  size="30"/>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-sm-offset-2">
-                                <a class="btn btn-default" href="#" onClick="Javascript:submitForm('form_1_id');">
-                                    Adicionar
-                                </a>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="autoria">Autoria:</label>
+                                        <input class="form-control" type="text" id="input_autoria" name="autoria" required
+                                               value=""  size="30"/>
+                                    </div>
+                                </div>
                             </div>
-                        </form>
-                    </div>
-                </div>
-                <div class="panel panel-warning">
-                    <div class="panel-heading">Editar Livro</div>
-                    <div class="panel-body">
-                        <form id="form_3_id" method="GET" action="crud" class="form-inline">
-                            <input id="botao_escolhido_form_3_id" type="hidden" name="botaoEscolhido" value="UPDATE"/>
-                            <div class="form-group">
-                                <label for="id">ID</label>
-                                <input type="text" name="id"
-                                       value=""  size="30"/>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="veiculo">Veículo:</label>
+                                        <input class="form-control" type="text" id="input_veiculo" name="veiculo" required
+                                               value=""  size="30"/>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="titulo">TÃ­tulo</label>
-                                <input type="text" name="titulo"
-                                       value=""  size="30"/>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="data_de">Data de publicação:</label>
+                                        <input class="form-control" type="date" id="input_data_publicacao" name="data_publicacao" required
+                                               value=""  size="30"/>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="autor">Autor</label>
-                                <input type="text" name="autor"
-                                       value=""  size="30"/>
+                            <div class="row">
+                                <div class="col-sm-8">
+                                    <div class="form-group">
+                                        <label for="palavras_chave">Palavras-chave:</label>
+                                        <input class="form-control" type="text" id="input_palavras_chave" name="palavras_chave" required
+                                               value=""  size="30"/>
+                                    </div>
+                                </div>
                             </div>
-                            <a class="btn btn-default" href="#" onClick="Javascript:submitForm('form_3_id');">
-                                Editar
+                            <a class="btn btn-default" href="#" onClick="submitForm('form_adicao');">
+                                Adicionar
                             </a>
                         </form>
                     </div>
                 </div>
-                <div class="panel panel-danger">
-                    <div class="panel-heading">Deletar Livro</div>
-                    <div class="panel-body">
-                        <form id="form_2_id" method="GET" action="crud" class="form-inline">
-                            <input id="botao_escolhido_form_2_id" type="hidden" name="botaoEscolhido" value="DELETE"/>
-                            <div class="form-group">
-                                <label for="id">ID</label>
-                                <input type="text" name="id"
-                                       value=""  size="30"/>
-                            </div>
-                            <a class="btn btn-default" href="#" onClick="Javascript:submitForm('form_2_id');">
-                                Deletar
-                            </a>
-                        </form>
-                    </div>
+            </div>
+            <div class="panel panel-danger">
+                <div class="panel-heading">Deletar Livro</div>
+                <div class="panel-body">
+                    <form id="form_delete" method="POST" class="form-inline">
+                        <div class="form-group">
+                            <label for="id">Patrimônio:</label>
+                            <input type="text" name="patrimonio"
+                                   value=""  size="30"/>
+                        </div>
+                        <a class="btn btn-default" href="#" onClick="submitForm('form_delete');">
+                            Deletar
+                        </a>
+                    </form>
                 </div>
-                <div class="alert alert-warning alert-dismissible" role="alert">
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <strong>${requestScope.Dialogo}</strong>
-                </div>
-                </body>
-                </html>
+            </div>
+    </body>
+</html>

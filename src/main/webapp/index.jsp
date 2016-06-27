@@ -27,8 +27,8 @@
                         </div>
                         <div id="navbar" class="navbar-collapse collapse">
                             <ul class="nav navbar-nav">
-                                <li  class="active"><a href="/livros/busca">Busca</a></li>
-                                <li><a href="/livros/crud">Adicionar/Deletar</a></li>
+                                <li  class="active"><a href="/trabalho2">Busca</a></li>
+                                <li><a href="/trabalho2/catalogo">Adicionar/Deletar</a></li>
                             </ul>
                         </div><!--/.nav-collapse -->
                     </div>
@@ -57,10 +57,10 @@
                                         <input class="form-control" type="text" id="input_titulo" name="titulo"
                                                value=""  size="30"/>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="tituloAND" value="tituloAND"> E
+                                            <input type="checkbox" id="tituloAND" value="tituloAND" onclick="$('#tituloOR').is(':checked') ? $('#tituloOR').attr('checked', false) : null"> E
                                         </label>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="tituloOR" value="tituloOR"> OU
+                                            <input type="checkbox" id="tituloOR" value="tituloOR" onclick="$('#tituloAND').is(':checked') ? $('#tituloAND').attr('checked', false) : null"> OU
                                         </label>
                                     </div>
                                 </div>
@@ -72,10 +72,10 @@
                                         <input class="form-control" type="text" id="input_autoria" name="autoria"
                                                value=""  size="30"/>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="autoriaAND" value="autoriaAND"> E
+                                            <input type="checkbox" id="autoriaAND" value="autoriaAND" onclick="$('#autoriaOR').is(':checked') ? $('#autoriaOR').attr('checked', false) : null"> E
                                         </label>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="autoriaOR" value="autoriaOR"> OU
+                                            <input type="checkbox" id="autoriaOR" value="autoriaOR" onclick="$('#autoriaAND').is(':checked') ? $('#autoriaAND').attr('checked', false) : null"> OU
                                         </label>
                                     </div>
                                 </div>
@@ -87,10 +87,10 @@
                                         <input class="form-control" type="text" id="input_veiculo" name="veiculo"
                                                value=""  size="30"/>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="veiculoAND" value="veiculoAND"> E
+                                            <input type="checkbox" id="veiculoAND" value="veiculoAND" onclick="$('#veiculoOR').is(':checked') ? $('#veiculoOR').attr('checked', false) : null"> E
                                         </label>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="veiculoOR" value="veiculoOR"> OU
+                                            <input type="checkbox" id="veiculoOR" value="veiculoOR" onclick="$('#veiculoAND').is(':checked') ? $('#veiculoAND').attr('checked', false) : null"> OU
                                         </label>
                                     </div>
                                 </div>
@@ -108,10 +108,10 @@
                                         <input class="form-control" type="date" id="input_data_ate" name="data_ate"
                                                value=""  size="30"/>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="dataAND" value="dataAND"> E
+                                            <input type="checkbox" id="dataAND" value="dataAND" onclick="$('#dataOR').is(':checked') ? $('#dataOR').attr('checked', false) : null"> E
                                         </label>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="dataOR" value="dataOR"> OU
+                                            <input type="checkbox" id="dataOR" value="dataOR" onclick="$('#dataAND').is(':checked') ? $('#dataAND').attr('checked', false) : null"> OU
                                         </label>
                                     </div>
                                 </div>
@@ -123,10 +123,10 @@
                                         <input class="form-control" type="text" id="input_palavras_chave" name="palavras_chave"
                                                value=""  size="30"/>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="palavraschaveAND" value="palavraschaveAND"> E
+                                            <input type="checkbox" id="palavraschaveAND" value="palavraschaveAND" onclick="$('#palavraschaveOR').is(':checked') ? $('#palavraschaveOR').attr('checked', false) : null"> E
                                         </label>
                                         <label class="checkbox-inline">
-                                            <input type="checkbox" id="palavraschaveOR" value="palavraschaveOR"> OU
+                                            <input type="checkbox" id="palavraschaveOR" value="palavraschaveOR" onclick="$('#palavraschaveAND').is(':checked') ? $('#palavraschaveAND').attr('checked', false) : null"> OU
                                         </label>
                                     </div>
                                 </div>
@@ -141,16 +141,13 @@
                     </div>
                 </div>
                 <table class="table">
+                    <tbody id="bodyResposta">
                     <tr>
-                        <th>ID</th>
-                        <th>Autor</th>
+                        <th>Patrimônio</th>
                         <th>Título</th>
+                        <th>Autoria</th>
                     </tr>
-                    <tr>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                    </tbody>
                 </table>
             </div>
     </body>

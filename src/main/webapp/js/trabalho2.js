@@ -2,61 +2,112 @@
 function submitForm(formID) {
     var formData = $('#' + formID).serializeArray();
     var dataFinal = {};
+    var url = "";
     for (i = 0; i < formData.length; i++) {
         dataFinal[formData[i]['name']] = formData[i]['value'];
     }
-    if (dataFinal['data_de'] != "") {
-        dataFinal['data_de'] = Date.parse(dataFinal['data_de']).toString();
-    }
-    if (dataFinal['data_ate'] != "") {
-        dataFinal['data_ate'] = Date.parse(dataFinal['data_ate'].toString());
-    }
 
-    dataFinal['checkboxes'] = {};
-    if ($('#tituloAND').is(':checked')) {
-        dataFinal['checkboxes']['tituloAND'] = true;
-    }
-    if ($('#tituloOR').is(':checked')) {
-        dataFinal['checkboxes']['tituloOR'] = true;
-    }
-    if ($('#autoriaAND').is(':checked')) {
-        dataFinal['checkboxes']['autoriaAND'] = true;
-    }
-    if ($('#autoriaOR').is(':checked')) {
-        dataFinal['checkboxes']['autoriaOR'] = true;
-    }
-    if ($('#veiculoAND').is(':checked')) {
-        dataFinal['checkboxes']['veiculoAND'] = true;
-    }
-    if ($('#veiculoOR').is(':checked')) {
-        dataFinal['checkboxes']['veiculoOR'] = true;
-    }
-    if ($('#dataAND').is(':checked')) {
-        dataFinal['checkboxes']['dataAND'] = true;
-    }
-    if ($('#dataOR').is(':checked')) {
-        dataFinal['checkboxes']['dataOR'] = true;
-    }
-    if ($('#palavraschaveAND').is(':checked')) {
-        dataFinal['checkboxes']['palavraschaveAND'] = true;
-    }
-    if ($('#palavraschaveOR').is(':checked')) {
-        dataFinal['checkboxes']['palavraschaveOR'] = true;
-    }
+    if (formID == 'form_busca') {
+        url = 'http://localhost:8080/trabalho2/busca';
 
-    $.ajax({
-        type: "POST",
-        url: "http://localhost:8080/trabalho2/busca",
-        data: JSON.stringify(dataFinal),
-        complete: function () {
-            alert(JSON.stringify(dataFinal));
-        },
-        success: function (response) {
-            alert(JSON.stringify(response));
-        },
-        dataType: "json",
-        contentType: "application/json"
-    });
+        if (dataFinal['data_de'] != "" && dataFinal['data_de'] != null) {
+            dataFinal['data_de'] = Date.parse(dataFinal['data_de']).toString();
+        }
+        if (dataFinal['data_ate'] != "" && dataFinal['data_ate'] != null) {
+            dataFinal['data_ate'] = Date.parse(dataFinal['data_ate']).toString();
+        }
+
+        dataFinal['checkboxes'] = {};
+        if ($('#tituloAND').is(':checked')) {
+            dataFinal['checkboxes']['tituloAND'] = true;
+        }
+        if ($('#tituloOR').is(':checked')) {
+            dataFinal['checkboxes']['tituloOR'] = true;
+        }
+        if ($('#autoriaAND').is(':checked')) {
+            dataFinal['checkboxes']['autoriaAND'] = true;
+        }
+        if ($('#autoriaOR').is(':checked')) {
+            dataFinal['checkboxes']['autoriaOR'] = true;
+        }
+        if ($('#veiculoAND').is(':checked')) {
+            dataFinal['checkboxes']['veiculoAND'] = true;
+        }
+        if ($('#veiculoOR').is(':checked')) {
+            dataFinal['checkboxes']['veiculoOR'] = true;
+        }
+        if ($('#dataAND').is(':checked')) {
+            dataFinal['checkboxes']['dataAND'] = true;
+        }
+        if ($('#dataOR').is(':checked')) {
+            dataFinal['checkboxes']['dataOR'] = true;
+        }
+        if ($('#palavraschaveAND').is(':checked')) {
+            dataFinal['checkboxes']['palavraschaveAND'] = true;
+        }
+        if ($('#palavraschaveOR').is(':checked')) {
+            dataFinal['checkboxes']['palavraschaveOR'] = true;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify(dataFinal),
+            complete: function () {
+                alert(JSON.stringify(dataFinal));
+            },
+            success: function (response) {
+                alert(JSON.stringify(response));
+                for (i = 0; i < response['arrayDeRespostas'].length; i++) {
+                    $('#bodyResposta').append('<tr><td>' + response['arrayDeRespostas'][i]['patrimonio'] + '</td><td>' + response['arrayDeRespostas'][i]['titulo'] + '</td><td>' + response['arrayDeRespostas'][i]['autoria'] + '</td></tr>');
+                }
+            },
+            dataType: "json",
+            contentType: "application/json"
+        });
+    } else if (formID == 'form_adicao') {
+        url = 'http://localhost:8080/trabalho2/catalogo';
+
+        for (i = 0; i < dataFinal.length; i++) {
+            if (dataFinal[i] == null || dataFinal[i] == "") {
+                alert("Favor preencher todos os campos");
+                return;
+            }
+        }
+        dataFinal['data_publicacao'] = Date.parse(dataFinal['data_publicacao']).toString();
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify(dataFinal),
+            complete: function () {
+                //alert(JSON.stringify(dataFinal));
+            },
+            success: function (response) {
+                alert("Adicionado livro com número de Patrimônio: " + response['patrimonio']);
+            },
+            dataType: "json",
+            contentType: "application/json"
+        });
+    }
+    else if (formID == 'form_delete') {
+        url = 'http://localhost:8080/trabalho2/delete';
+
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: JSON.stringify(dataFinal),
+            complete: function () {
+                alert('Deletado livro de patrimônio: '+ dataFinal['patrimonio']);
+            },
+            success: function (response) {
+                alert('Deletado livro de patrimônio: '+ dataFinal['patrimonio']);
+            },
+            dataType: "json",
+            contentType: "application/json"
+        });
+    }
+    
 }
 
 function disableAllButPatrimonio() {

@@ -21,31 +21,46 @@ public class BiblioPDFDAO extends BaseDAO {
         RespostaDTO umaRefDTO = null;
 
         String patrimonio = dados.getString("patrimonio");
-        String[] palavrasDaBuscaTitulo = extrairPalavrasDaBusca(dados.getString("titulo"));
-        String[] palavrasDaBuscaAutoria = extrairPalavrasDaBusca(dados.getString("autoria"));
-        String[] palavrasDaBuscaVeiculo = extrairPalavrasDaBusca(dados.getString("veiculo"));
-        String[] palavrasDaBuscaChave = extrairPalavrasDaBusca(dados.getString("palavras_chave"));
+        String[] palavrasDaBuscaTitulo = null;
+        String[] palavrasDaBuscaAutoria = null;
+        String[] palavrasDaBuscaVeiculo = null;
+        String[] palavrasDaBuscaChave = null;
         Date dataDe = null;
         Date dataAte = null;
-        if (!"".equals(dados.getString("data_de"))) {
-            dataDe = new Timestamp(Long.parseLong(dados.getString("data_de")));
-        }
-        if (!"".equals(dados.getString("data_ate"))) {    
-            dataAte = new Timestamp(Long.parseLong(dados.getString("data_ate")));
-        }
+        Map<String, Boolean> checkboxes = null;
 
-        Map<String, Boolean> checkboxes = new HashMap<>();
-        JsonObject jsonCheckboxes = dados.getJsonObject("checkboxes");
-        Iterator<?> keys = jsonCheckboxes.keySet().iterator();
+        if ("".equals(patrimonio)) {
 
-        while (keys.hasNext()) {
-            String key = (String) keys.next();
-            if (jsonCheckboxes.getBoolean(key)) {
-                checkboxes.put(key, Boolean.TRUE);
+            palavrasDaBuscaTitulo = extrairPalavrasDaBusca(dados.getString("titulo"));
+            palavrasDaBuscaAutoria = extrairPalavrasDaBusca(dados.getString("autoria"));
+            palavrasDaBuscaVeiculo = extrairPalavrasDaBusca(dados.getString("veiculo"));
+            palavrasDaBuscaChave = extrairPalavrasDaBusca(dados.getString("palavras_chave"));
+
+            if (!"".equals(dados.getString("data_de"))) {
+                dataDe = new Timestamp(Long.parseLong(dados.getString("data_de")));
+            }
+            if (!"".equals(dados.getString("data_ate"))) {
+                dataAte = new Timestamp(Long.parseLong(dados.getString("data_ate")));
+            }
+
+            checkboxes = new HashMap<>();
+            JsonObject jsonCheckboxes = dados.getJsonObject("checkboxes");
+            Iterator<?> keys = jsonCheckboxes.keySet().iterator();
+
+            while (keys.hasNext()) {
+                String key = (String) keys.next();
+                if (jsonCheckboxes.getBoolean(key)) {
+                    checkboxes.put(key, Boolean.TRUE);
+                }
             }
         }
-
-        String preparedStatement = prepararComandoSQL(palavrasDaBuscaTitulo, palavrasDaBuscaAutoria, palavrasDaBuscaVeiculo, palavrasDaBuscaChave, dataDe, dataAte, checkboxes);
+        String preparedStatement;
+        if ("".equals(patrimonio)) {
+            preparedStatement = prepararComandoSQL(palavrasDaBuscaTitulo, palavrasDaBuscaAutoria, palavrasDaBuscaVeiculo, palavrasDaBuscaChave, dataDe, dataAte, checkboxes);
+        } else {
+            preparedStatement = "SELECT T1.patrimonio, T1.titulo, T1.autoria, (count(*)) AS nrohits \n"
+                    + "FROM dadoscatalogo T1 WHERE T1.patrimonio = " + patrimonio + " GROUP BY T1.patrimonio, T1.titulo, T1.autoria;";
+        }
         try (Connection conexao = getConnection()) {
             PreparedStatement comandoSQL = conexao.prepareStatement(preparedStatement);
 
@@ -66,6 +81,9 @@ public class BiblioPDFDAO extends BaseDAO {
 //------------------------------------------------------------------------------    
 
     private String[] extrairPalavrasDaBusca(String busca) {
+        if ("".equals(busca)) {
+            return new String[0];
+        }
         busca = Utils.removeDiacriticals(busca);
         String[] temp = busca.split(" ");
         for (int i = 0; i < temp.length; i++) {
@@ -107,7 +125,7 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
             String baseComandoTitulo = "T2.palavra_titulo_normal LIKE ";
             comando += " AND ( ";
             for (int i = 0; i < palavrasDaBuscaTitulo.length; i++) {
-                comando = comando + baseComandoTitulo + palavrasDaBuscaTitulo[i] + " \n";
+                comando = comando + baseComandoTitulo + '\'' +palavrasDaBuscaTitulo[i]+'\'' + " \n";
                 if (i < (palavrasDaBuscaTitulo.length - 1)) {
                     comando = comando + "OR \n";
                 }
@@ -119,17 +137,18 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
             String baseComandoAutoria = "T3.palavra_autoria_normal LIKE ";
             comando += " AND ( ";
             for (int i = 0; i < palavrasDaBuscaAutoria.length; i++) {
-                comando = comando + baseComandoAutoria + palavrasDaBuscaAutoria[i] + " \n";
+                comando = comando + baseComandoAutoria + '\'' + palavrasDaBuscaAutoria[i] + '\'' + " \n";
                 if (i < (palavrasDaBuscaAutoria.length - 1)) {
                     comando = comando + "OR \n";
                 }
             }
+            comando += " ) \n";
         }
         if (palavrasDaBuscaVeiculo.length > 0 && checkboxes.containsKey("veiculoAND")) {
             String baseComandoVeiculo = "T4.palavra_veiculo_normal LIKE ";
             comando += " AND ( ";
             for (int i = 0; i < palavrasDaBuscaVeiculo.length; i++) {
-                comando = comando + baseComandoVeiculo + palavrasDaBuscaVeiculo[i] + " \n";
+                comando = comando + baseComandoVeiculo + '\'' + palavrasDaBuscaVeiculo[i] + '\'' + " \n";
                 if (i < (palavrasDaBuscaVeiculo.length - 1)) {
                     comando = comando + "OR \n";
                 }
@@ -141,7 +160,7 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
             String baseComandoChave = "T5.palchavenormal LIKE ";
             comando += " AND ( ";
             for (int i = 0; i < palavrasDaBuscaVeiculo.length; i++) {
-                comando = comando + baseComandoChave + palavrasDaBuscaChave[i] + " \n";
+                comando = comando + baseComandoChave + '\'' + palavrasDaBuscaChave[i] + '\'' + " \n";
                 if (i < (palavrasDaBuscaChave.length - 1)) {
                     comando = comando + "OR \n";
                 }
@@ -149,21 +168,23 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
             comando += ") \n";
         }
         if (dataDe != null && checkboxes.containsKey("dataAND")) {
-            comando += "AND T1.data_publicacao >= " + dataDe.toString() + "\n";
+            comando += "AND T1.data_publicacao >= " + '\'' + dataDe.toString() + '\'' + "\n";
         }
         if (dataAte != null && checkboxes.containsKey("dataAND")) {
-            comando += "AND T1.data_publicacao <= " + dataAte.toString() + "\n";
+            comando += "AND T1.data_publicacao <= " + '\'' +dataAte.toString() + '\'' + "\n";
         }
 
         //----- comandos OR
-        comando += "OR (";
+        if (checkboxes.containsKey("tituloOR") || checkboxes.containsKey("autoriaOR") || checkboxes.containsKey("veiculoOR") || checkboxes.containsKey("palavraschaveOR")) {
+            comando += "AND ( ";
+        }
 
         if (palavrasDaBuscaTitulo.length > 0 && checkboxes.containsKey("tituloOR")) {
 
             String baseComandoTitulo = "T2.palavra_titulo_normal LIKE ";
             comando += " OR ( ";
             for (int i = 0; i < palavrasDaBuscaTitulo.length; i++) {
-                comando = comando + baseComandoTitulo + palavrasDaBuscaTitulo[i] + " \n";
+                comando = comando + baseComandoTitulo + '\'' + palavrasDaBuscaTitulo[i] + '\'' + " \n";
                 if (i < (palavrasDaBuscaTitulo.length - 1)) {
                     comando = comando + "OR \n";
                 }
@@ -175,17 +196,18 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
             String baseComandoAutoria = "T3.palavra_autoria_normal LIKE ";
             comando += " OR ( ";
             for (int i = 0; i < palavrasDaBuscaAutoria.length; i++) {
-                comando = comando + baseComandoAutoria + palavrasDaBuscaAutoria[i] + " \n";
+                comando = comando + baseComandoAutoria + '\'' + palavrasDaBuscaAutoria[i] + '\'' + " \n";
                 if (i < (palavrasDaBuscaAutoria.length - 1)) {
                     comando = comando + "OR \n";
                 }
             }
+            comando += " ) \n";
         }
         if (palavrasDaBuscaVeiculo.length > 0 && checkboxes.containsKey("veiculoOR")) {
             String baseComandoVeiculo = "T4.palavra_veiculo_normal LIKE ";
             comando += " OR ( ";
             for (int i = 0; i < palavrasDaBuscaVeiculo.length; i++) {
-                comando = comando + baseComandoVeiculo + palavrasDaBuscaVeiculo[i] + " \n";
+                comando = comando + baseComandoVeiculo + '\'' + palavrasDaBuscaVeiculo[i] + '\'' + " \n";
                 if (i < (palavrasDaBuscaVeiculo.length - 1)) {
                     comando = comando + "OR \n";
                 }
@@ -197,7 +219,7 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
             String baseComandoChave = "T5.palchavenormal LIKE ";
             comando += " OR ( ";
             for (int i = 0; i < palavrasDaBuscaVeiculo.length; i++) {
-                comando = comando + baseComandoChave + palavrasDaBuscaChave[i] + " \n";
+                comando = comando + baseComandoChave + '\'' + palavrasDaBuscaChave[i] + '\'' + " \n";
                 if (i < (palavrasDaBuscaChave.length - 1)) {
                     comando = comando + "OR \n";
                 }
@@ -206,13 +228,15 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
         }
 
         if (dataDe != null && checkboxes.containsKey("dataOR")) {
-            comando += "OR T1.data_publicacao >= " + dataDe.toString() + "\n";
+            comando += "OR T1.data_publicacao >= " + '\'' + dataDe.toString() + '\'' + "\n";
         }
         if (dataAte != null && checkboxes.containsKey("dataOr")) {
-            comando += "OR T1.data_publicacao <= " + dataAte.toString() + "\n";
+            comando += "OR T1.data_publicacao <= " + '\'' + dataAte.toString() + '\'' + "\n";
         }
         //----- fim comandos OR
-        comando += ") \n";
+        if (checkboxes.containsKey("tituloOR") || checkboxes.containsKey("autoriaOR") || checkboxes.containsKey("veiculoOR") || checkboxes.containsKey("palavraschaveOR")) {
+            comando += " ) \n";
+        }
 
         comando = inicioSelectExterno + comando + finalSelectExterno;
         return comando;
@@ -223,7 +247,6 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
         ResultSet rst = null;
         long patrimonio = 0L;
         String titulo = dados.getString("titulo").trim();
-        titulo = titulo.replaceAll("\\s+", " ");
 
         try (Connection conexao = getConnection()) {
             // BEGIN TRANSACTION
@@ -246,39 +269,39 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
             Date dataDe = new Timestamp(Long.parseLong(dados.getString("data_publicacao")));
 
             for (String cadaPalavra : palavrasDaBuscaTitulo) {
-                comandoSQL = conexao.prepareStatement(
+                PreparedStatement comandoSQL2 = conexao.prepareStatement(
                         "INSERT INTO palavrastitulonormal (palavra_titulo_normal,patrimonio) "
                         + "VALUES(?,?);");
-                comandoSQL.setString(1, cadaPalavra);
-                comandoSQL.setLong(2, patrimonio);
-                comandoSQL.executeUpdate();
+                comandoSQL2.setString(1, cadaPalavra);
+                comandoSQL2.setLong(2, patrimonio);
+                comandoSQL2.executeUpdate();
             }
-            
+
             for (String cadaPalavra : palavrasDaBuscaAutoria) {
-                comandoSQL = conexao.prepareStatement(
+                PreparedStatement comandoSQL3 = conexao.prepareStatement(
                         "INSERT INTO palavrasautorianormal (palavra_autoria_normal,patrimonio) "
                         + "VALUES(?,?);");
-                comandoSQL.setString(1, cadaPalavra);
-                comandoSQL.setLong(2, patrimonio);
-                comandoSQL.executeUpdate();
+                comandoSQL3.setString(1, cadaPalavra);
+                comandoSQL3.setLong(2, patrimonio);
+                comandoSQL3.executeUpdate();
             }
-            
+
             for (String cadaPalavra : palavrasDaBuscaVeiculo) {
-                comandoSQL = conexao.prepareStatement(
+                PreparedStatement comandoSQL4 = conexao.prepareStatement(
                         "INSERT INTO palavrasveiculonormal (palavra_veiculo_normal,patrimonio) "
                         + "VALUES(?,?);");
-                comandoSQL.setString(1, cadaPalavra);
-                comandoSQL.setLong(2, patrimonio);
-                comandoSQL.executeUpdate();
+                comandoSQL4.setString(1, cadaPalavra);
+                comandoSQL4.setLong(2, patrimonio);
+                comandoSQL4.executeUpdate();
             }
-            
+
             for (String cadaPalavra : palavrasDaBuscaChave) {
-                comandoSQL = conexao.prepareStatement(
-                        "INSERT INTO palavras_chave (palavra_veiculo_normal,patrimonio) "
+                PreparedStatement comandoSQL5 = conexao.prepareStatement(
+                        "INSERT INTO palavras_chave (palchavenormal ,patrimonio) "
                         + "VALUES(?,?);");
-                comandoSQL.setString(1, cadaPalavra);
-                comandoSQL.setLong(2, patrimonio);
-                comandoSQL.executeUpdate();
+                comandoSQL5.setString(1, cadaPalavra);
+                comandoSQL5.setLong(2, patrimonio);
+                comandoSQL5.execute();
             }
             // COMMIT TRANSACTION
             conexao.commit();
@@ -288,6 +311,47 @@ GROUP BY T1.patrimonio, T1.titulo, T1.autoria ORDER BY nrohits DESC, titulo ASC;
         }
         return "{\"patrimonio\":\"" + Long.toString(patrimonio) + "\"}";
     }
-
 //------------------------------------------------------------------------------
+    
+     public String deletarLivro(JsonObject dados) {
+        long patrimonio = Long.parseLong(dados.getString("patrimonio"));
+
+        try (Connection conexao = getConnection()) {
+            // BEGIN TRANSACTION
+            conexao.setAutoCommit(false);
+            // PRIMEIRA TABELA
+            PreparedStatement comandoSQL = conexao.prepareStatement(
+                    "DELETE FROM dadoscatalogo T1 where T1.patrimonio =" + patrimonio + ";");
+
+            comandoSQL.execute();
+            
+            comandoSQL = conexao.prepareStatement(
+                    "DELETE FROM palavrastitulonormal T1 where T1.patrimonio =" + patrimonio + ";");
+            
+            comandoSQL.execute();
+            
+            comandoSQL = conexao.prepareStatement(
+                    "DELETE FROM palavrasautorianormal T1 where T1.patrimonio =" + patrimonio + ";");
+            
+            comandoSQL.execute();
+            
+            comandoSQL = conexao.prepareStatement(
+                    "DELETE FROM palavrasveiculonormal T1 where T1.patrimonio =" + patrimonio + ";");
+            
+            comandoSQL.execute();
+            
+            comandoSQL = conexao.prepareStatement(
+                    "DELETE FROM palavras_chave T1 where T1.patrimonio =" + patrimonio + ";");
+            
+            comandoSQL.execute();
+            // COMMIT TRANSACTION
+            conexao.commit();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "{\'status\':\'false\'}";
+        }
+        return "{\'status\':\'true\'}";
+    }
+
 }

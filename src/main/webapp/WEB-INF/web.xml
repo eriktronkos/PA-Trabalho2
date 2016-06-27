@@ -8,6 +8,23 @@
         <servlet-name>ControllerBusca</servlet-name>
         <url-pattern>/busca</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>ControllerCatalogo</servlet-name>
+        <servlet-class>tronkos.erik.trabalho2.ControllerCatalogo</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ControllerCatalogo</servlet-name>
+        <url-pattern>/catalogo</url-pattern>
+    </servlet-mapping>
+    <servlet>
+        <servlet-name>ControllerDelete</servlet-name>
+        <servlet-class>tronkos.erik.trabalho2.ControllerDelete</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ControllerDelete</servlet-name>
+        <url-pattern>/delete</url-pattern>
+    </servlet-mapping>
+
     <session-config>
         <session-timeout>
             30
